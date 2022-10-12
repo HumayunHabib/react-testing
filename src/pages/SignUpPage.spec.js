@@ -75,10 +75,11 @@ describe("Sign UP Page", () => {
       const button = screen.getByRole("button", { name: "Sign Up" });
 
       const mockFn = jest.fn();
+      window.fetch = mockFn;
       axios.post = mockFn;
       userEvent.click(button);
       const firstCallOfMockFunction = mockFn.mock.calls[0];
-      const body = firstCallOfMockFunction[1];
+      const body = JSON.parse(firstCallOfMockFunction[1].body);
       expect(body).toEqual({
         username: "user1",
         email: "user1@mail.com",
