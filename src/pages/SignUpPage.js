@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 const SignUpPage = () => {
   const [disabled, setdisabled] = useState(true);
+  const [apiProgress, setapiProgress] = useState(false);
   const [password, setpassword] = useState("");
   const [passwordRepeat, setpasswordRepeat] = useState("");
   const [username, setusername] = useState("");
@@ -34,6 +35,7 @@ const SignUpPage = () => {
       password,
     };
     // After using msw both type of api calls works now
+    setapiProgress(true);
     axios.post("/api/1.0/users", body);
     // fetch("/api/1.0/users", {
     //   method: "POST",
@@ -99,9 +101,20 @@ const SignUpPage = () => {
           <div className="text-center">
             <button
               className="btn btn-primary"
-              disabled={disabled || password === "" || passwordRepeat === ""}
+              disabled={
+                disabled ||
+                password === "" ||
+                passwordRepeat === "" ||
+                apiProgress
+              }
               onClick={submit}
             >
+              {apiProgress && (
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                ></span>
+              )}
               Sign Up
             </button>
           </div>
