@@ -33,14 +33,15 @@ const SignUpPage = () => {
       email,
       password,
     };
-    // axios.post("/api/1.0/users", body);
-    fetch("/api/1.0/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    // After using msw both type of api calls works now
+    axios.post("/api/1.0/users", body);
+    // fetch("/api/1.0/users", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(body),
+    // });
   };
 
   return (

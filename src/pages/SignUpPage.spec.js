@@ -2,6 +2,8 @@ import SignUpPage from "./SignUpPage";
 import { render, screen } from "@testing-library/react";
 import axios from "axios";
 import userEvent from "@testing-library/user-event";
+import { setupServer } from "msw/node";
+import { rest } from "msw";
 
 describe("Sign UP Page", () => {
   describe("Layout", () => {
@@ -62,7 +64,15 @@ describe("Sign UP Page", () => {
       const button = screen.getByRole("button", { name: "Sign Up" });
       expect(button).toBeEnabled();
     });
-    it("sends username, email, and password to backend after clicking the button", () => {
+    it("sends username, email, and password to backend after clicking the button", async () => {
+      let requestBody;
+      const server = setupServer(
+        rest.post("/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res(ctx.status(200));
+        })
+      );
+      server.listen();
       render(<SignUpPage />);
       const usernameInput = screen.getByLabelText("Username");
       const emailInput = screen.getByLabelText("E-mail");
@@ -74,13 +84,9 @@ describe("Sign UP Page", () => {
       userEvent.type(passwordRepeatInput, "P4ssword");
       const button = screen.getByRole("button", { name: "Sign Up" });
 
-      const mockFn = jest.fn();
-      window.fetch = mockFn;
-      axios.post = mockFn;
       userEvent.click(button);
-      const firstCallOfMockFunction = mockFn.mock.calls[0];
-      const body = JSON.parse(firstCallOfMockFunction[1].body);
-      expect(body).toEqual({
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      expect(requestBody).toEqual({
         username: "user1",
         email: "user1@mail.com",
         password: "P4ssword",
