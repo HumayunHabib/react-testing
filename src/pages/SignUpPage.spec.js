@@ -1,5 +1,10 @@
 import SignUpPage from "./SignUpPage";
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import axios from "axios";
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
@@ -55,6 +60,20 @@ describe("Sign UP Page", () => {
     });
   });
   describe("interactions", () => {
+    let requestBody;
+
+    const server = setupServer(
+      rest.post("/api/1.0/users", (req, res, ctx) => {
+        requestBody = req.body;
+
+        return res(ctx.status(200));
+      })
+    );
+    beforeEach(() => {
+      server.resetHandlers();
+    });
+    beforeAll(() => server.listen());
+    afterAll(() => server.close());
     let button;
     const setup = () => {
       render(<SignUpPage />);
@@ -74,21 +93,9 @@ describe("Sign UP Page", () => {
       expect(button).toBeEnabled();
     });
     it("sends username, email, and password to backend after clicking the button", async () => {
-      let requestBody;
-
-      const server = setupServer(
-        rest.post("/api/1.0/users", (req, res, ctx) => {
-          requestBody = req.body;
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
-
       userEvent.click(button);
-
       await new Promise((resolve) => setTimeout(resolve, 500));
-
       expect(requestBody).toEqual({
         username: "user1",
         email: "user1@mail.com",
@@ -96,17 +103,64 @@ describe("Sign UP Page", () => {
       });
     });
     it("displays the spinner after clicking the submit", async () => {
-      const server = setupServer(
-        rest.post("/api/1.0/users", (req, res, ctx) => {
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
       userEvent.click(button);
       const spinner = screen.getByRole("status");
       expect(spinner).toBeInTheDocument();
+    });
+    it("displays account activation notification affter successful sign up", async () => {
+      setup();
+      const message = "Please check your e-mail to activate your account";
+      expect(screen.queryByText(message)).not.toBeInTheDocument();
+      userEvent.click(button);
+
+      const text = await screen.findByText(message);
+      expect(text).toBeInTheDocument();
+    });
+    it("hides sign up form after successful sign up request", async () => {
+      setup();
+      const form = screen.getByTestId("form-sign-up");
+      userEvent.click(button);
+      await waitFor(() => {
+        expect(form).not.toBeInTheDocument();
+      });
+    });
+    it("displayys validation message for username", async () => {
+      server.use(
+        rest.post("/api/1.0/users", (req, res, ctx) => {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: { username: "Username cannot be null" },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      const validationError = await screen.findByText(
+        "Username cannot be null"
+      );
+      expect(validationError).toBeInTheDocument();
+    });
+
+    it("hides spinner after response is received", async () => {
+      server.use(
+        rest.post("/api/1.0/users", (req, res, ctx) => {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: { username: "Username cannot be null" },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      await screen.findByText("Username cannot be null");
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+      expect(button).toBeEnabled();
     });
   });
 });
