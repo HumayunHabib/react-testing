@@ -55,6 +55,17 @@ describe("Sign UP Page", () => {
     });
   });
   describe("interactions", () => {
+    let requestBody;
+
+    const server = setupServer(
+      rest.post("/api/1.0/users", (req, res, ctx) => {
+        requestBody = req.body;
+        return res(ctx.status(200));
+      })
+    );
+    beforeEach(() => {});
+    beforeAll(() => server.listen());
+    afterAll(() => server.close());
     let button;
     const setup = () => {
       render(<SignUpPage />);
@@ -74,15 +85,6 @@ describe("Sign UP Page", () => {
       expect(button).toBeEnabled();
     });
     it("sends username, email, and password to backend after clicking the button", async () => {
-      let requestBody;
-
-      const server = setupServer(
-        rest.post("/api/1.0/users", (req, res, ctx) => {
-          requestBody = req.body;
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
 
       userEvent.click(button);
@@ -96,17 +98,29 @@ describe("Sign UP Page", () => {
       });
     });
     it("displays the spinner after clicking the submit", async () => {
-      const server = setupServer(
-        rest.post("/api/1.0/users", (req, res, ctx) => {
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
       userEvent.click(button);
       const spinner = screen.getByRole("status");
       expect(spinner).toBeInTheDocument();
+    });
+    it("displayys validation message for username", async () => {
+      server.use(
+        rest.post("/api/1.0/users", (req, res, ctx) => {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: { username: "Username cannot be null" },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      const validationError = await screen.findByText(
+        "Username cannot be null"
+      );
+      expect(validationError).toBeInTheDocument();
     });
   });
 });

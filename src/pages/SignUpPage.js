@@ -7,6 +7,7 @@ const SignUpPage = () => {
   const [passwordRepeat, setpasswordRepeat] = useState("");
   const [username, setusername] = useState("");
   const [email, setemail] = useState("");
+  const [errors, setErrors] = useState({});
 
   const onChangePassword = (event) => {
     const currentValue = event.target.value;
