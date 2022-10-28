@@ -1,5 +1,5 @@
 import { Component } from "react";
-import Input from "../components/input";
+import Input from "../components/Input";
 import axios from "axios";
 class SignUpPage extends Component {
   state = {
@@ -59,17 +59,13 @@ class SignUpPage extends Component {
                 onChange={this.onChange}
                 help={errors.username}
               />
-              <div className="mb-3">
-                {" "}
-                <label className="form-label" htmlFor="email">
-                  E-mail
-                </label>
-                <input
-                  className="form-control"
-                  id="email"
-                  onChange={this.onChange}
-                />
-              </div>
+              <Input
+                id="email"
+                label="E-mail"
+                onChange={this.onChange}
+                help={errors.email}
+              />
+
               <div className="mb-3">
                 {" "}
                 <label className="form-label" htmlFor="password">
