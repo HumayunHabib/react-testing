@@ -168,11 +168,11 @@ describe("Sign UP Page", () => {
       server.use(genrateValidationError("username", "Username cannot be null"));
       setup();
       userEvent.click(button);
-      const validationError = await screen.findByText(
-        "Username cannot be null"
-      );
+      screen.queryByText("Username cannot be null");
       userEvent.type(usernameInput, "user1-updated");
-      expect(validationError).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Username cannot be null")
+      ).not.toBeInTheDocument();
     });
   });
 });

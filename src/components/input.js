@@ -18,11 +18,10 @@ const Input = (props) => {
         onChange={onChange}
         type={type || "text"}
       />
-      {help && (
-        <span data-testid="custom-element" className={"invalid-feedback"}>
-          {help}
-        </span>
-      )}
+
+      <span data-testid="custom-element" className={"invalid-feedback"}>
+        {help}
+      </span>
     </div>
   );
 };
