@@ -164,15 +164,21 @@ describe("Sign UP Page", () => {
       const validationError = screen.getByText("Password mismatch");
       expect(validationError).toBeInTheDocument();
     });
-    it("clears validation error after username field is updated", async () => {
-      server.use(genrateValidationError("username", "Username cannot be null"));
-      setup();
-      userEvent.click(button);
-      screen.queryByText("Username cannot be null");
-      userEvent.type(usernameInput, "user1-updated");
-      expect(
-        screen.queryByText("Username cannot be null")
-      ).not.toBeInTheDocument();
-    });
+    it.each`
+      field         | message                      | label
+      ${"username"} | ${"Username cannot be null"} | ${"Username"}
+      ${"email"}    | ${"E-mail cannot be null"}   | ${"E-mail"}
+      ${"password"} | ${"Password cannot be null"} | ${"Password"}
+    `(
+      "clears validation error after  $field is updated",
+      async ({ field, message, label }) => {
+        server.use(genrateValidationError(field, message));
+        setup();
+        userEvent.click(button);
+        const validationError = await screen.findByText(message);
+        userEvent.type(screen.getByLabelText(label), "updated");
+        expect(validationError).not.toBeInTheDocument();
+      }
+    );
   });
 });
