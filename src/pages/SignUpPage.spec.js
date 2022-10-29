@@ -1,10 +1,12 @@
 import SignUpPage from "./SignUpPage";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import "../locale/i18n";
-
+import en from "../locale/en.json";
+import tr from "../locale/tr.json";
+import LanguageSelector from "../components/LanguageSelector";
+import i18n from "../locale/i18n";
 describe("Sign UP Page", () => {
   describe("Layout", () => {
     it("has header", () => {
@@ -175,5 +177,79 @@ describe("Sign UP Page", () => {
         expect(validationError).not.toBeInTheDocument();
       }
     );
+  });
+  describe("Internationalization", () => {
+    let turkishToggle, englishToggle;
+    const setup = () => {
+      render(
+        <>
+          <SignUpPage />
+          <LanguageSelector />
+        </>
+      );
+      turkishToggle = screen.getByTitle("Türkçe");
+      englishToggle = screen.getByTitle("English");
+    };
+
+    afterEach(() => {
+      act(() => {
+        i18n.changeLanguage("en");
+      });
+    });
+    it("initially displays all text in English", () => {
+      setup();
+      expect(
+        screen.getByRole("heading", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(en.username)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.email)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.password)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.passwordRepeat)).toBeInTheDocument();
+    });
+    it("display all text in Turkish after changing the language", () => {
+      setup();
+
+      userEvent.click(turkishToggle);
+      expect(
+        screen.getByRole("heading", { name: tr.signUp })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: tr.signUp })
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(tr.username)).toBeInTheDocument();
+      expect(screen.getByLabelText(tr.email)).toBeInTheDocument();
+      expect(screen.getByLabelText(tr.password)).toBeInTheDocument();
+      expect(screen.getByLabelText(tr.passwordRepeat)).toBeInTheDocument();
+    });
+
+    it("display all text in English after changing back from Turkish", () => {
+      setup();
+
+      userEvent.click(turkishToggle);
+      userEvent.click(englishToggle);
+      expect(
+        screen.getByRole("heading", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(en.username)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.email)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.password)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.passwordRepeat)).toBeInTheDocument();
+    });
+    it("displays password mismatch validation in Turkish", () => {
+      setup();
+      userEvent.click(turkishToggle);
+      const passwordInput = screen.getByLabelText(tr.password);
+      userEvent.type(passwordInput, "P4ss");
+      const validationMessageInTurkish = screen.getByText(
+        tr.passwordMismatchValidation
+      );
+      expect(validationMessageInTurkish).toBeInTheDocument();
+    });
   });
 });

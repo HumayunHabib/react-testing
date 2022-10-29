@@ -43,6 +43,7 @@ class SignUpPage extends Component {
       this.setState({ apiProgress: false });
     }
   };
+
   render() {
     const { t } = this.props;
     let disabled = true;
@@ -52,7 +53,7 @@ class SignUpPage extends Component {
       disabled = password !== passwordRepeat;
     }
     let passwordMismatch =
-      password !== passwordRepeat ? "Password mismatch" : "";
+      password !== passwordRepeat ? t("passwordMismatchValidation") : "";
     return (
       <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2 ">
         {!signUpSuccess && (

@@ -3,5 +3,6 @@
   "username": "Kullanici Adi",
   "email": "E-posta",
   "password": "Sifre",
-  "passwordRepeat": "Sifre Tekrari"
+  "passwordRepeat": "Sifre Tekrari",
+  "passwordMismatchValidation": "Şifre eşleşmiyor"
 }
