@@ -1,14 +1,9 @@
 import SignUpPage from "./SignUpPage";
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
-import axios from "axios";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
+import "../locale/i18n";
 
 describe("Sign UP Page", () => {
   describe("Layout", () => {
