@@ -1,12 +1,32 @@
 import SignUpPage from "./SignUpPage";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
+import i18n from "../locale/i18n";
 import en from "../locale/en.json";
 import tr from "../locale/tr.json";
 import LanguageSelector from "../components/LanguageSelector";
-import i18n from "../locale/i18n";
+let requestBody;
+let acceptLanguageHeader;
+const server = setupServer(
+  rest.post("/api/1.0/users", (req, res, ctx) => {
+    requestBody = req.body;
+    acceptLanguageHeader = req.headers.get("Accept-Language");
+    return res(ctx.status(200));
+  })
+);
+beforeEach(() => {
+  server.resetHandlers();
+});
+beforeAll(() => server.listen());
+afterAll(() => server.close());
 describe("Sign UP Page", () => {
   describe("Layout", () => {
     it("has header", () => {
@@ -57,20 +77,6 @@ describe("Sign UP Page", () => {
     });
   });
   describe("interactions", () => {
-    let requestBody;
-
-    const server = setupServer(
-      rest.post("/api/1.0/users", (req, res, ctx) => {
-        requestBody = req.body;
-
-        return res(ctx.status(200));
-      })
-    );
-    beforeEach(() => {
-      server.resetHandlers();
-    });
-    beforeAll(() => server.listen());
-    afterAll(() => server.close());
     let button, usernameInput, emailInput, passwordInput, passwordRepeatInput;
     const setup = () => {
       render(<SignUpPage />);
@@ -179,7 +185,7 @@ describe("Sign UP Page", () => {
     );
   });
   describe("Internationalization", () => {
-    let turkishToggle, englishToggle;
+    let turkishToggle, englishToggle, passwordInput, passwordRepeatInput;
     const setup = () => {
       render(
         <>
@@ -189,6 +195,8 @@ describe("Sign UP Page", () => {
       );
       turkishToggle = screen.getByTitle("Türkçe");
       englishToggle = screen.getByTitle("English");
+      passwordInput = screen.getByLabelText("Password");
+      passwordRepeatInput = screen.getByLabelText("Password Repeat");
     };
 
     afterEach(() => {
@@ -244,12 +252,32 @@ describe("Sign UP Page", () => {
     it("displays password mismatch validation in Turkish", () => {
       setup();
       userEvent.click(turkishToggle);
-      const passwordInput = screen.getByLabelText(tr.password);
       userEvent.type(passwordInput, "P4ss");
       const validationMessageInTurkish = screen.getByText(
         tr.passwordMismatchValidation
       );
       expect(validationMessageInTurkish).toBeInTheDocument();
+    });
+    it("sends accept language header as en for outgoing request", async () => {
+      setup();
+      userEvent.type(passwordInput, "P4ssword");
+      userEvent.type(passwordRepeatInput, "P4ssword");
+      const button = screen.getByRole("button", { name: en.signUp });
+      const form = screen.getByTestId("form-sign-up");
+      userEvent.click(button);
+      await waitForElementToBeRemoved(form);
+      expect(acceptLanguageHeader).toBe("en");
+    });
+    it("sends accept language header as tr for outgoing request after selecting the language", async () => {
+      setup();
+      userEvent.type(passwordInput, "P4ssword");
+      userEvent.type(passwordRepeatInput, "P4ssword");
+      const button = screen.getByRole("button", { name: en.signUp });
+      userEvent.click(turkishToggle);
+      const form = screen.getByTestId("form-sign-up");
+      userEvent.click(button);
+      await waitForElementToBeRemoved(form);
+      expect(acceptLanguageHeader).toBe("tr");
     });
   });
 });
