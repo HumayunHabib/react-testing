@@ -116,7 +116,6 @@ describe("Sign UP Page", () => {
       await screen.findByText(
         "Please check your e-mail to activate your account"
       );
-      console.log("counter", counter);
       expect(counter).toBe(1);
     });
     it("displays the spinner after clicking the submit", async () => {
