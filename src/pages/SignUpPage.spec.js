@@ -14,15 +14,18 @@ import en from "../locale/en.json";
 import tr from "../locale/tr.json";
 import LanguageSelector from "../components/LanguageSelector";
 let requestBody;
+let counter = 0;
 let acceptLanguageHeader;
 const server = setupServer(
   rest.post("/api/1.0/users", (req, res, ctx) => {
     requestBody = req.body;
+    counter += 1;
     acceptLanguageHeader = req.headers.get("Accept-Language");
     return res(ctx.status(200));
   })
 );
 beforeEach(() => {
+  counter = 0;
   server.resetHandlers();
 });
 beforeAll(() => server.listen());
@@ -104,6 +107,17 @@ describe("Sign UP Page", () => {
         email: "user1@mail.com",
         password: "P4ssword",
       });
+    });
+    it("disables button when there is an ongoing api call", async () => {
+      setup();
+      userEvent.click(button);
+      userEvent.click(button);
+
+      await screen.findByText(
+        "Please check your e-mail to activate your account"
+      );
+      console.log("counter", counter);
+      expect(counter).toBe(1);
     });
     it("displays the spinner after clicking the submit", async () => {
       setup();
