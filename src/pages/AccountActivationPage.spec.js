@@ -56,4 +56,14 @@ describe("Accounts Activation Page", () => {
     await screen.findByText("Activation failure");
     expect(spinner).not.toBeInTheDocument();
   });
+  it("displays spinner after second api call to the changed token", async () => {
+    const match = { params: { token: "1234" } };
+    const { rerender } = render(<AccountActivationPage match={match} />);
+    await screen.findByText("Account is activated");
+    match.params.token = "5678";
+    rerender(<AccountActivationPage match={match} />);
+    const spinner = screen.getByRole("status");
+    await screen.findByText("Activation failure");
+    expect(spinner).not.toBeInTheDocument();
+  });
 });

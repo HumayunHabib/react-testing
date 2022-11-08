@@ -26,16 +26,10 @@ function App() {
             <Link className="nav-link" to="/login">
               Login
             </Link>
-            <Link className="nav-link" to="/activate/1">
-              activate1
-            </Link>
-            <Link className="nav-link" to="/activate/2">
-              activate2
-            </Link>
           </ul>
         </div>
       </nav>
-      <div className="container">
+      <div className="container  pt-3">
         <Route exact path="/" component={HomePage} />
         <Route path="/signup" component={SignUpPage} />
         <Route path="/login" component={LoginPage} />
