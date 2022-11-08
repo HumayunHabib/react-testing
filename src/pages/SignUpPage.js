@@ -1,10 +1,11 @@
 import { Component } from "react";
 import Input from "../components/Input";
-import axios from "axios";
 import { withTranslation } from "react-i18next";
 import { signUp } from "../api/apiCalls";
 import Spinner from "./../components/Spinner";
 import Alert from "./../components/Alert";
+import withHover from "../withHover";
+
 class SignUpPage extends Component {
   state = {
     username: "",
@@ -115,5 +116,6 @@ class SignUpPage extends Component {
     );
   }
 }
+
 const SignUpPageWithTranslation = withTranslation()(SignUpPage);
-export default SignUpPageWithTranslation;
+export default withHover(SignUpPageWithTranslation);

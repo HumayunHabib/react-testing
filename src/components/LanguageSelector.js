@@ -1,10 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import withHover from "./../withHover";
 
-const LanguageSelector = () => {
+const LanguageSelector = (props) => {
   const { i18n } = useTranslation();
   return (
     <>
+      {props.text}
       <img
         src="https://flagcdn.com/16x12/tr.png"
         title="Türkçe"
@@ -22,4 +24,4 @@ const LanguageSelector = () => {
   );
 };
 
-export default LanguageSelector;
+export default withHover(LanguageSelector);
