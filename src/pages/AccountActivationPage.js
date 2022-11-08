@@ -23,19 +23,7 @@ const AccountActivationPage = (props) => {
   } else if (result === "fail") {
     content = <div className="alert alert-danger mt-3">Activation failure</div>;
   }
-  return (
-    <div data-testid="activation-page">
-      {result === "success" && (
-        <div className="alert alert-success mt-3">Account is activated</div>
-      )}
-      {result === "fail" && (
-        <div className="alert alert-danger mt-3">Activation failure</div>
-      )}
-      {!result && (
-        <span className="spinner-border spinner-border" role="status"></span>
-      )}
-    </div>
-  );
+  return <div data-testid="activation-page">{content}</div>;
 };
 
 export default AccountActivationPage;
