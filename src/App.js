@@ -26,6 +26,12 @@ function App() {
             <Link className="nav-link" to="/login">
               Login
             </Link>
+            <Link className="nav-link" to="/activate/1">
+              activate1
+            </Link>
+            <Link className="nav-link" to="/activate/2">
+              activate2
+            </Link>
           </ul>
         </div>
       </nav>
