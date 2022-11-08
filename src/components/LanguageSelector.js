@@ -4,9 +4,9 @@ import withHover from "./../withHover";
 
 const LanguageSelector = (props) => {
   const { i18n } = useTranslation();
+
   return (
     <>
-      {props.text}
       <img
         src="https://flagcdn.com/16x12/tr.png"
         title="Türkçe"

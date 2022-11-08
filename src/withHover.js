@@ -28,7 +28,7 @@ const withHover = (WrappedComponent) => {
           onMouseOver={this.onMouseOver}
           onMouseOut={this.onMouseOut}
         >
-          <WrappedComponent {...this.props} />
+          <WrappedComponent {...this.props} on={this.state.on} />
         </div>
       );
     }
